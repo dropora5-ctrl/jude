@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>For You 💖</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500&display=swap" rel="stylesheet">
+
+<style>
+body {
+    margin:0;
+    font-family:Poppins;
+    background:black;
+    color:white;
+    overflow:hidden;
+}
+
+/* INTRO */
+#intro, #trailer {
+    position:fixed;
+    width:100%;
+    height:100%;
+    background:black;
+    z-index:9999;
+}
+#introCanvas { width:100%; height:100%; }
+
+#trailer {
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    opacity:0;
+    transition:1s;
+}
+.trailer-text {
+    font-size:2em;
+    text-align:center;
+    opacity:0;
+    transition:1s;
+}
+
+/* WHATSAPP */
+.chat-screen {
+    max-width:400px;
+    margin:auto;
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+    background:#0b141a;
+}
+
+.header {
+    background:#202c33;
+    padding:10px;
+}
+
+.messages {
+    flex:1;
+    padding:10px;
+    overflow-y:auto;
+}
+
+.msg {
+    padding:8px 12px;
+    border-radius:15px;
+    margin:6px 0;
+    max-width:70%;
+    opacity:0;
+    animation:fadeUp .4s forwards;
+}
+.me { background:#005c4b; margin-left:auto; }
+.them { background:#202c33; }
+
+@keyframes fadeUp {
+    to {opacity:1; transform:translateY(0);}
+}
+
+#final { display:none; text-align:center; }
+
+/* BUTTONS */
+button {
+    padding:10px 20px;
+    border:none;
+    border-radius:20px;
+    margin:10px;
+}
+.yes { background:#25d366; }
+.no { background:#ff4d6d; position:absolute; }
+
+/* RING */
+#ringScene {
+    position:fixed;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%) scale(0);
+    text-align:center;
+    transition:.6s;
+    z-index:10000;
+}
+
+.ring-box {
+    width:120px;
+    height:80px;
+    background:#222;
+    position:relative;
+}
+
+.ring-lid {
+    width:120px;
+    height:50px;
+    background:#111;
+    position:absolute;
+    top:-50px;
+    transform-origin:bottom;
+    transition:.6s;
+}
+.open .ring-lid { transform:rotateX(-120deg); }
+
+.ring {
+    position:absolute;
+    top:10px;
+    left:50%;
+    transform:translateX(-50%) scale(0);
+    font-size:40px;
+    transition:.6s;
+}
+.open .ring { transform:translateX(-50%) scale(1.2); }
+
+/* SLIDES */
+#slideshow {
+    position:fixed;
+    width:100%;
+    height:100%;
+    display:none;
+}
+.slide {
+    position:absolute;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    opacity:0;
+    transition:1s;
+}
+
+/* HEART */
+.heart {
+    position:absolute;
+    animation:float 5s linear;
+}
+@keyframes float {
+    to { transform:translateY(-100vh); opacity:0; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- INTRO -->
+<div id="intro"><canvas id="introCanvas"></canvas></div>
+
+<!-- TRAILER -->
+<div id="trailer"><div class="trailer-text" id="tText"></div></div>
+
+<!-- CHAT -->
+<div class="chat-screen" id="chatScreen" style="display:none;">
+<div class="header">Minnu 💖</div>
+<div class="messages" id="chat"></div>
+
+<div id="final">
+Will you be mine forever? 💍<br>
+<button class="yes" id="yesBtn">Yes 💕</button>
+<button class="no" id="noBtn">No 😭</button>
+</div>
+</div>
+
+<!-- RING -->
+<div id="ringScene">
+<div class="ring-box" id="box">
+<div class="ring-lid"></div>
+<div class="ring">💍</div>
+</div>
+<div id="ringText">You just made me the happiest person alive ❤️</div>
+</div>
+
+<!-- SLIDES -->
+<div id="slideshow">
+<img src="photo1.jpg" class="slide">
+<img src="photo2.jpg" class="slide">
+<img src="photo3.jpg" class="slide">
+</div>
+
+<audio id="bgMusic" loop>
+<source src="your-music.mp3">
+</audio>
+
+<script>
+
+/* STARS */
+const c=document.getElementById("introCanvas");
+const ctx=c.getContext("2d");
+c.width=innerWidth; c.height=innerHeight;
+
+let stars=Array.from({length:300},()=>({
+x:Math.random()*c.width-c.width/2,
+y:Math.random()*c.height-c.height/2,
+z:Math.random()*c.width
+}));
+
+function draw(){
+ctx.fillStyle="black";
+ctx.fillRect(0,0,c.width,c.height);
+ctx.fillStyle="white";
+stars.forEach(s=>{
+s.z-=5;
+if(s.z<=0)s.z=c.width;
+let k=128/s.z;
+ctx.fillRect(s.x*k+c.width/2,s.y*k+c.height/2,2,2);
+});
+requestAnimationFrame(draw);
+}
+draw();
+
+/* TRAILER */
+const lines=[
+"Out of all people...",
+"I found you.",
+"And everything changed ❤️",
+"you become my world",
+"LOVE YOU VAVEE💋💋❤️"
+];
+
+let ti=0;
+
+setTimeout(()=>{
+document.getElementById("intro").style.display="none";
+let tr=document.getElementById("trailer");
+let txt=document.getElementById("tText");
+tr.style.opacity=1;
+
+function next(){
+if(ti>=lines.length){
+tr.style.opacity=0;
+setTimeout(()=>{
+tr.style.display="none";
+startChat();
+},1000);
+return;
+}
+txt.innerHTML=lines[ti];
+txt.style.opacity=1;
+setTimeout(()=>{
+txt.style.opacity=0;
+ti++;
+setTimeout(next,800);
+},2000);
+}
+next();
+},3000);
+
+/* CHAT */
+function startChat(){
+document.getElementById("chatScreen").style.display="flex";
+
+const msgs=[
+["them","Hey 😊"],
+["me","Hey…"],
+["them","What are you doing?"],
+["me","Thinking about you…"],
+["them","😳"],
+["me","You make everything better."],
+["me","I think I fell for you ❤️"]
+];
+
+let chat=document.getElementById("chat");
+
+msgs.forEach((m,i)=>{
+setTimeout(()=>{
+let d=document.createElement("div");
+d.className="msg "+m[0];
+d.innerText=m[1];
+chat.appendChild(d);
+chat.scrollTop=chat.scrollHeight;
+},i*1200);
+});
+
+setTimeout(()=>{
+document.getElementById("final").style.display="block";
+},msgs.length*1200+1000);
+}
+
+/* MUSIC */
+document.body.onclick=()=>{
+document.getElementById("bgMusic").play().catch(()=>{});
+};
+
+/* YES */
+document.getElementById("yesBtn").onclick=()=>{
+document.getElementById("chatScreen").style.display="none";
+
+let scene=document.getElementById("ringScene");
+let box=document.getElementById("box");
+
+scene.style.transform="translate(-50%,-50%) scale(1)";
+setTimeout(()=>box.classList.add("open"),500);
+
+setTimeout(()=>{
+let slides=document.querySelectorAll(".slide");
+let i=0;
+document.getElementById("slideshow").style.display="block";
+
+setInterval(()=>{
+slides.forEach(s=>s.style.opacity=0);
+slides[i].style.opacity=1;
+i=(i+1)%slides.length;
+},2000);
+
+setInterval(()=>{
+let h=document.createElement("div");
+h.innerHTML="❤️";
+h.className="heart";
+h.style.left=Math.random()*100+"vw";
+h.style.bottom="0";
+document.body.appendChild(h);
+setTimeout(()=>h.remove(),5000);
+},150);
+
+},2500);
+};
+
+/* NO BUTTON */
+const noBtn=document.getElementById("noBtn");
+const texts=["Are you sure? 😭","Think again 😳","Please don't 💔"];
+let i=0;
+
+noBtn.onmouseover=()=>{
+noBtn.innerText=texts[i++%texts.length];
+noBtn.style.left=Math.random()*80+"%";
+noBtn.style.top=Math.random()*80+"%";
+};
+
+</script>
+
+</body>
+</html>

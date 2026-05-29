@@ -1,1 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>For You 💖</title>
 
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500&display=swap" rel="stylesheet">
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: black;
+    color: white;
+    overflow: hidden;
+}
+
+/* INTRO */
+#intro {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background: black;
+    z-index: 9999;
+}
+
+#introCanvas {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+/* TRAILER */
+#trailer {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9998;
+    background: black;
+    opacity: 0;
+    transition: 1s;
+    pointer-events: none; /* 🔥 important fix */
+}
+
+.trailer-text {
+    font-size: 2em;
+    text-align: center;
+    opacity: 0;
+    transform: scale(0.9);
+    transition: 1s;
+}
+
+/* MAIN */
+.container {
+    position: relative;
+    z-index: 1;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* BUTTONS */
+button {
+    margin: 10px;
+    padding: 12px 25px;
+    border-radius: 30px;
+    border: none;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+.yes {
+    background: #00ff99;
+    box-shadow: 0 0 15px #00ff99;
+    position: relative;
+    z-index: 10000;
+}
+
+.no {
+    background: #ff4d6d;
+    position: absolute;
+}
+
+/* FINAL */
+#final {
+    opacity: 0;
+    transition: 1s;
+}
+
+/* HEARTS */
+.heart {
+    position: absolute;
+    bottom: -10px;
+    color: pink;
+    animation: floatUp linear forwards;
+}
+
+@keyframes floatUp {
+    to {
+        transform: translateY(-100vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+h1 {
+    font-size: 2.5em;
+    text-shadow: 0 0 15px #ff4d6d;
+}
+
+#typing {
+    font-size: 1.4em;
+}
+</style>
+</head>
+
+<body>
+
+<!-- INTRO -->
+<div id="intro">
+    <canvas id="introCanvas"></canvas>
+</div>
+
+<!-- TRAILER -->
+<div id="trailer">
+    <div class="trailer-text" id="tText"></div>
+</div>
+
+<!-- MAIN -->
+<div class="container">
+    <h1>Oiii Jude💖</h1>
+    <div id="typing"></div>
+
+    <div id="final">
+        I love you sooo much 💖<br><br>
+        Will you stay with me forever?<br><br>
+
+        <button class="yes" id="yesBtn">Yes 💕</button>
+        <button class="no" id="noBtn">No 😭</button>
+    </div>
+</div>
+
+<script>
+/* CANVAS */
+const canvas = document.getElementById("introCanvas");
+const ctx = canvas.getContext("2d");
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+resizeCanvas();
+
+let stars = Array.from({length:300},()=>({
+    x:Math.random()*canvas.width-canvas.width/2,
+    y:Math.random()*canvas.height-canvas.height/2,
+    z:Math.random()*canvas.width
+}));
+
+function drawStars(){
+    ctx.fillStyle="black";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle="white";
+
+    stars.forEach(s=>{
+        s.z-=5;
+        if(s.z<=0) s.z=canvas.width;
+
+        let k=128/s.z;
+        let x=s.x*k+canvas.width/2;
+        let y=s.y*k+canvas.height/2;
+
+        ctx.fillRect(x,y,2,2);
+    });
+
+    requestAnimationFrame(drawStars);
+}
+drawStars();
+
+/* TRAILER */
+const trailerLines = [
+    "In a world full of random moments...",
+    "I met you.",
+    "Everything changed.",
+    "You became my world ❤️"
+];
+
+let tIndex = 0;
+
+function showTrailer() {
+    const trailer = document.getElementById("trailer");
+    const text = document.getElementById("tText");
+
+    trailer.style.opacity = 1;
+
+    function nextLine() {
+        if (tIndex >= trailerLines.length) {
+            trailer.style.opacity = 0;
+            setTimeout(() => {
+                trailer.style.display = "none"; // 🔥 prevents blocking
+                startMain();
+            }, 1000);
+            return;
+        }
+
+        text.innerHTML = trailerLines[tIndex];
+        text.style.opacity = 1;
+
+        setTimeout(() => {
+            text.style.opacity = 0;
+            tIndex++;
+            setTimeout(nextLine, 800);
+        }, 2000);
+    }
+
+    nextLine();
+}
+
+setTimeout(() => {
+    document.getElementById("intro").style.display = "none";
+    showTrailer();
+}, 3000);
+
+/* TYPING */
+const message = "You make my life better. I love you 💖";
+let i = 0;
+
+function typeEffect(){
+    if(i < message.length){
+        document.getElementById("typing").innerHTML += message.charAt(i);
+        i++;
+        setTimeout(typeEffect, 40);
+    }
+}
+
+function startMain(){
+    typeEffect();
+    setTimeout(()=>{
+        document.getElementById("final").style.opacity=1;
+    },3000);
+}
+
+/* YES BUTTON */
+document.getElementById("yesBtn").addEventListener("click", function () {
+
+    const container = document.querySelector(".container");
+
+    // Fade out everything
+    container.style.transition = "0.6s";
+    container.style.opacity = "0";
+
+    setTimeout(() => {
+        container.style.display = "none";
+
+        // Create full screen love screen
+        const loveScreen = document.createElement("div");
+        loveScreen.style.position = "fixed";
+        loveScreen.style.top = "0";
+        loveScreen.style.left = "0";
+        loveScreen.style.width = "100%";
+        loveScreen.style.height = "100%";
+        loveScreen.style.background = "black";
+        loveScreen.style.display = "flex";
+        loveScreen.style.justifyContent = "center";
+        loveScreen.style.alignItems = "center";
+        loveScreen.style.flexDirection = "column";
+        loveScreen.style.zIndex = "99999";
+
+        // Main message
+        const msg = document.createElement("div");
+        msg.innerHTML = "LOVE YOU FOREVER..💋💋💋💋🫀❤️ YOU ARE MY WORLD";
+        msg.style.fontSize = "2.5em";
+        msg.style.color = "#ff4d6d";
+        msg.style.textShadow = "0 0 20px #ff4d6d";
+        msg.style.transform = "scale(0)";
+        msg.style.transition = "0.6s";
+
+        loveScreen.appendChild(msg);
+        document.body.appendChild(loveScreen);
+
+        setTimeout(() => {
+            msg.style.transform = "scale(1)";
+        }, 100);
+
+        // Floating hearts
+        setInterval(() => {
+            const heart = document.createElement("div");
+            heart.innerHTML = "❤️";
+            heart.style.position = "absolute";
+            heart.style.left = Math.random() * 100 + "vw";
+            heart.style.bottom = "-20px";
+            heart.style.fontSize = (Math.random() * 20 + 20) + "px";
+            heart.style.animation = "floatUp 5s linear";
+
+            loveScreen.appendChild(heart);
+            setTimeout(() => heart.remove(), 5000);
+        }, 200);
+
+    }, 600);
+});
+
+/* NO BUTTON RUN AWAY */
+const noBtn = document.getElementById("noBtn");
+noBtn.addEventListener("mouseover",()=>{
+    noBtn.style.left=Math.random()*80+"%";
+    noBtn.style.top=Math.random()*80+"%";
+});
+</script>
+
+</body>
+</html>
